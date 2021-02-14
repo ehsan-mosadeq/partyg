@@ -19,8 +19,12 @@ class Game(models.Model):
     num_of_rounds = models.IntegerField(unique=False, default=0)
     current_round = models.IntegerField(unique=False, default=0)
 
+    @property
+    def active(self):
+        return self.num_of_rounds > self.current_round
+
 class Gamer(models.Model):
-    game = models.ForeignKey( Game, related_name='gamers', on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, related_name='gamers', on_delete=models.CASCADE)
     name = models.CharField(max_length=13, unique=False, default='')
 
     quests_from_me = models.ManyToManyField(
@@ -53,6 +57,9 @@ class Gamer(models.Model):
         sumOfPts = sum([len(answer.selectors.all()) for answer in self.my_answers.all()])
         return sumOfPts
 
+    class Meta:
+        unique_together = ('game', 'name')
+
 class GamerQuestion(models.Model):
     subject = models.ForeignKey(Gamer, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, related_name = "instances", on_delete=models.CASCADE)
@@ -70,7 +77,9 @@ class GamerQuestion(models.Model):
 
 class Answer(models.Model):
     publisher = models.ForeignKey(Gamer, related_name = 'my_answers', on_delete=models.CASCADE)
-    gamer_question = models.ForeignKey(GamerQuestion, related_name = "answers_to_me", on_delete=models.CASCADE, default = None)
+    gamer_question = models.ForeignKey(GamerQuestion,
+         related_name = "answers_to_me", on_delete=models.CASCADE, default = None)
+
     text = models.CharField(max_length=500, unique=False, default = '')
     selectors = models.ManyToManyField(Gamer,
                 through='Vote', 

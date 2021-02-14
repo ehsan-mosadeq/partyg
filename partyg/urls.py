@@ -15,11 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from django.urls import path
-from partyg_bck.views import GamersList
+from django.urls import path, include
 
 
 urlpatterns = [
-    url(r'^$', GamersList.as_view(), name = 'gamers_list'),
     url(r'^admin/', admin.site.urls),
+    path('', include('partyg_bck.pg_urls'))
 ]

@@ -1,17 +1,41 @@
-from django.shortcuts import render
+from rest_framework import viewsets, mixins
+from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from .serializers import *
+from .models import *
 
-from .serializers import GamerSerializer
-from .models import Gamer
+class GamersViewSet(
+                   mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   #mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
 
-class GamersList(APIView):
-    def get(self, request):
-        gamers = Gamer.objects.all()
-        data = GamerSerializer(gamers, many=True).data
-        return Response(data)
+    queryset = Gamer.objects.all().order_by('id')
+    serializer_class = GamerSerializer
+    #permission_classes = [IsAuthenticated]
+
+class GamesViewSet(
+                   mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   #mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
+    queryset = Game.objects.all().order_by('id')
+    serializer_class = GameSerializer
+
+from django.http import HttpResponseRedirect
+
+def GLogin(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect("/")
+    else:
+        return HttpResponseRedirect("/accounts/google/login")
 
 
-    
+def MySocialLogin(request):
+    print(request)
+    return HttpResponse(request)
