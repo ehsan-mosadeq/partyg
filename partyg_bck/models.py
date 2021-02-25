@@ -1,16 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Question(models.Model):
     template = models.CharField(max_length=500, unique=True)
+
     def __str__(self):
         return str(self.template)
+
 
 class Client(User):
     mob_num = models.CharField(max_length=13, unique=True, default='')
 
+    def has_active_game(self):
+        return not self.active_game() is None
+
+    def active_game(self):
+        return next((x for x in self.games.all() if x.active), None)
+
     def __str__(self):
         return self.first_name
+
 
 class Game(models.Model):
     owner = models.ForeignKey(
@@ -22,6 +32,10 @@ class Game(models.Model):
     @property
     def active(self):
         return self.num_of_rounds > self.current_round
+
+    def __str__(self):
+        return "owner: {}, is active: {} ".format(self.owner, self.active)
+
 
 class Gamer(models.Model):
     game = models.ForeignKey(Game, related_name='gamers', on_delete=models.CASCADE)
@@ -50,7 +64,9 @@ class Gamer(models.Model):
     def __str__(self):
         return str(self.name)
 
-    def get_invitor(self): return game.owner
+    def get_invitor(self): return self.game.owner
+
+    def token(self): return self.game.token
 
     @property
     def points(self):
@@ -59,6 +75,7 @@ class Gamer(models.Model):
 
     class Meta:
         unique_together = ('game', 'name')
+
 
 class GamerQuestion(models.Model):
     subject = models.ForeignKey(Gamer, on_delete=models.CASCADE)
@@ -74,6 +91,7 @@ class GamerQuestion(models.Model):
 
     class Meta:
         unique_together = ('subject', 'question')
+
 
 class Answer(models.Model):
     publisher = models.ForeignKey(Gamer, related_name = 'my_answers', on_delete=models.CASCADE)
@@ -91,6 +109,7 @@ class Answer(models.Model):
     class Meta:
         unique_together = ('publisher', 'gamer_question')
 
+
 class Vote(models.Model):
     voter = models.ForeignKey(Gamer, related_name = "my_votes", on_delete=models.CASCADE)
     question = models.ForeignKey(GamerQuestion, related_name = "votes", on_delete=models.CASCADE)
@@ -98,6 +117,7 @@ class Vote(models.Model):
 
     class Meta:
         unique_together = ('voter', 'question')
+
 
 class Alert(models.Model):
     publisher = models.ForeignKey(Gamer, related_name = "published_alerts", on_delete=models.CASCADE)
