@@ -8,7 +8,7 @@ router = routers.DefaultRouter()
 router.register(r'gamers', views.GamersViewSet, basename='Gamer')
 router.register(r'games', views.GamesViewSet, basename='Game')
 router.register(r'question', views.GamerQuestionViewSet, basename='GamerQuestion')
-
+router.register(r'answers', views.AnswerViewSet, basename='Answer')
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 

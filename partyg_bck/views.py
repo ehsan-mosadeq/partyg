@@ -16,7 +16,6 @@ class GamersViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet):
     serializer_class = GamerSerializer
-    #queryset = Gamer.objects.all().order_by('id')
 
     def get_queryset(self):
         game_token = self.request.query_params.get('GTKN')
@@ -63,17 +62,17 @@ def GLogin(request):
 
     game_token = clt.active_game().token
     auth_token = Token.objects.get_or_create(user=request.user)
-    #TODO a game rounds page should be created
+    # TODO a game rounds page should be created
     response = HttpResponseRedirect("http://127.0.0.1:8040?GTKN={}".format(str(game_token)))
     response['auth_token'] = auth_token
     return response
 
 
 class GamerQuestionViewSet(
-    #mixins.CreateModelMixin,
-    #mixins.RetrieveModelMixin,
-    #mixins.UpdateModelMixin,
-    #mixins.DestroyModelMixin,
+    # mixins.CreateModelMixin,
+    # mixins.RetrieveModelMixin,
+    # mixins.UpdateModelMixin,
+    # mixins.DestroyModelMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet):
     serializer_class = GamerQuestionSerializer
@@ -82,3 +81,24 @@ class GamerQuestionViewSet(
         game_token = self.request.query_params.get('GTKN')
         game = Game.objects.get(token=game_token)
         return [game.get_current_question()]
+
+
+class AnswerViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    #mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet):
+    serializer_class = AnswerSerializer
+
+    def get_queryset(self):
+        game_token = self.request.query_params.get('GTKN')
+        gamer_id = self.request.query_params.get('GID')
+
+        if game_token is None or gamer_id is None:
+            return []
+
+        game = Game.objects.get(token=game_token)
+        gamer = Gamer.objects.get(pk=gamer_id)
+        return [ans for ans in game.get_current_question().answers_to_me.all() if not(ans.publisher is gamer)]

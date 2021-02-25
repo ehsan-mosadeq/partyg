@@ -129,6 +129,10 @@ class Answer(models.Model):
                                        through='Vote',
                                        through_fields=['selection', 'voter'], blank=True)
 
+    @property
+    def game_token(self):
+        return self.publisher.game.token
+
     def __str__(self):
         return str(self.text)
 

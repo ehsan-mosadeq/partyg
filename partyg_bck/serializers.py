@@ -29,6 +29,7 @@ class GamerSerializer(serializers.HyperlinkedModelSerializer):
         instance.save()
         return instance
 
+
 class GameSerializer(serializers.HyperlinkedModelSerializer):
     owner_id = serializers.IntegerField(source="owner.id")
     token = serializers.ReadOnlyField()
@@ -53,7 +54,33 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class GamerQuestionSerializer(serializers.HyperlinkedModelSerializer):
-
     class Meta:
         model = GamerQuestion
         fields = ['text']
+
+
+class AnswerSerializer(serializers.HyperlinkedModelSerializer):
+    publisher_id = serializers.IntegerField(source="publisher.id")
+    game_token = serializers.IntegerField()
+
+    class Meta:
+        model = Answer
+        fields = ['game_token', 'publisher_id', 'text']
+
+    def validate(self, data):
+        publisher = Gamer.objects.get(pk=data['publisher']['id'])
+        if not publisher.game.active \
+                or not (Game.objects.get(token=data['game_token']) == publisher.game):
+            raise serializers.ValidationError("not allowed")
+        return data
+
+    def create(self, v_data):
+        publisher = Gamer.objects.get(pk=v_data['publisher']['id'])
+        question = publisher.game.get_current_question()
+        text = v_data['text']
+        ans, created = Answer.objects.get_or_create(
+            gamer_question=question, publisher=publisher)
+        # if not created the answer exists
+        ans.text = text
+        ans.save()
+        return ans
