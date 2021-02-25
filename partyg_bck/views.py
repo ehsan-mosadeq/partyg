@@ -68,3 +68,17 @@ def GLogin(request):
     response['auth_token'] = auth_token
     return response
 
+
+class GamerQuestionViewSet(
+    #mixins.CreateModelMixin,
+    #mixins.RetrieveModelMixin,
+    #mixins.UpdateModelMixin,
+    #mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet):
+    serializer_class = GamerQuestionSerializer
+
+    def get_queryset(self):
+        game_token = self.request.query_params.get('GTKN')
+        game = Game.objects.get(token=game_token)
+        return [game.get_current_question()]

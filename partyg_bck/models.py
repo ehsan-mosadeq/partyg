@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import random
 
 
 class Question(models.Model):
@@ -33,6 +34,31 @@ class Game(models.Model):
     def active(self):
         return self.num_of_rounds > self.current_round
 
+    def questions(self):
+        gamers_quests = [gamer.questions.all() for gamer in self.gamers.all()]
+        return [item for sublist in gamers_quests for item in sublist]  # sample of double for
+
+    def __get_rand_ix__(self, n):
+        return random.randrange(0, n)
+
+    def __get_new_question__(self):
+        gamers_list = self.gamers.all()
+        questions_list = Question.objects.all()
+        gamer = gamers_list[self.__get_rand_ix__(len(gamers_list))]
+        question = questions_list[self.__get_rand_ix__(len(questions_list))]
+        new_gamer_question, created = \
+            GamerQuestion.objects.get_or_create(subject=gamer, question=question)
+        if created:
+            return new_gamer_question
+
+        return self.__get_new_question__()
+
+    def get_current_question(self):
+        cq = next((q for q in self.questions() if not q.finished), None)
+        if cq is None:
+            return self.__get_new_question__()
+        return cq
+
     def __str__(self):
         return "owner: {}, is active: {} ".format(self.owner, self.active)
 
@@ -42,24 +68,24 @@ class Gamer(models.Model):
     name = models.CharField(max_length=13, unique=False, default='')
 
     quests_from_me = models.ManyToManyField(
-                Question,
-                through='GamerQuestion', 
-                through_fields=['subject', 'question'], blank=True)
+        Question,
+        through='GamerQuestion',
+        through_fields=['subject', 'question'], blank=True)
 
     connections = models.ManyToManyField(
-                'Gamer',
-                through='Alert', 
-                through_fields=['publisher', 'receiver'], blank=True)
+        'Gamer',
+        through='Alert',
+        through_fields=['publisher', 'receiver'], blank=True)
 
     answered_quests = models.ManyToManyField(
-                'GamerQuestion',
-                through='Answer', 
-                through_fields=['publisher', 'gamer_question'], blank=True)
+        'GamerQuestion',
+        through='Answer',
+        through_fields=['publisher', 'gamer_question'], blank=True)
 
     answers_selected_by_me = models.ManyToManyField(
-                'Answer',
-                through='Vote', 
-                through_fields=['voter', 'selection'],blank=True)
+        'Answer',
+        through='Vote',
+        through_fields=['voter', 'selection'], blank=True)
 
     def __str__(self):
         return str(self.name)
@@ -78,41 +104,41 @@ class Gamer(models.Model):
 
 
 class GamerQuestion(models.Model):
-    subject = models.ForeignKey(Gamer, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, related_name = "instances", on_delete=models.CASCADE)
-    asked = models.BooleanField(default = False)
+    subject = models.ForeignKey(Gamer, related_name="questions", on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, related_name="instances", on_delete=models.CASCADE)
+    finished = models.BooleanField(default=False)
 
     @property
     def text(self):
         return self.question.template.format(str(self.subject))
 
     def __str__(self):
-        return self.text
+        return "Question: {}, Finished: {}".format(self.text, self.finished)
 
     class Meta:
         unique_together = ('subject', 'question')
 
 
 class Answer(models.Model):
-    publisher = models.ForeignKey(Gamer, related_name = 'my_answers', on_delete=models.CASCADE)
+    publisher = models.ForeignKey(Gamer, related_name='my_answers', on_delete=models.CASCADE)
     gamer_question = models.ForeignKey(GamerQuestion,
-         related_name = "answers_to_me", on_delete=models.CASCADE, default = None)
+                                       related_name="answers_to_me", on_delete=models.CASCADE, default=None)
 
-    text = models.CharField(max_length=500, unique=False, default = '')
+    text = models.CharField(max_length=500, unique=False, default='')
     selectors = models.ManyToManyField(Gamer,
-                through='Vote', 
-                through_fields=['selection', 'voter'], blank=True)
+                                       through='Vote',
+                                       through_fields=['selection', 'voter'], blank=True)
 
     def __str__(self):
         return str(self.text)
-    
+
     class Meta:
         unique_together = ('publisher', 'gamer_question')
 
 
 class Vote(models.Model):
-    voter = models.ForeignKey(Gamer, related_name = "my_votes", on_delete=models.CASCADE)
-    question = models.ForeignKey(GamerQuestion, related_name = "votes", on_delete=models.CASCADE)
+    voter = models.ForeignKey(Gamer, related_name="my_votes", on_delete=models.CASCADE)
+    question = models.ForeignKey(GamerQuestion, related_name="votes", on_delete=models.CASCADE)
     selection = models.ForeignKey(Answer, on_delete=models.CASCADE)
 
     class Meta:
@@ -120,18 +146,17 @@ class Vote(models.Model):
 
 
 class Alert(models.Model):
-    publisher = models.ForeignKey(Gamer, related_name = "published_alerts", on_delete=models.CASCADE)
-    receiver = models.ForeignKey(Gamer, related_name = "received_alerts", on_delete=models.CASCADE)
+    publisher = models.ForeignKey(Gamer, related_name="published_alerts", on_delete=models.CASCADE)
+    receiver = models.ForeignKey(Gamer, related_name="received_alerts", on_delete=models.CASCADE)
     gamer_question = models.ForeignKey(GamerQuestion,
-         related_name = "alerts", on_delete=models.CASCADE, default = None)
+                                       related_name="alerts", on_delete=models.CASCADE, default=None)
 
     def __str__(self):
         return "from {} to {} for {}".format(
             str(self.publisher.name), str(self.receiver.name), str(self.gamer_question))
-    
+
     class Meta:
         unique_together = ('publisher', 'receiver', 'gamer_question')
 
-
 # points for a Gamer = for answer in Gamer.Answers: points += len(answer.selectors))
-#"gtenv/scripts/activate.bat"
+# "gtenv/scripts/activate.bat"

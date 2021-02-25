@@ -51,8 +51,9 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
                                    num_of_rounds=v_data['num_of_rounds'],
                                    current_round=0)
 
-# class GameQuestionSerializer(serializers.ModelSerializer):
 
-#     class Meta:
-#         model = Gamer
-#         fields = ['text']
+class GamerQuestionSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = GamerQuestion
+        fields = ['text']

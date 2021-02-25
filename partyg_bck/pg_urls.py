@@ -7,7 +7,7 @@ from django.views.generic import TemplateView
 router = routers.DefaultRouter()
 router.register(r'gamers', views.GamersViewSet, basename='Gamer')
 router.register(r'games', views.GamesViewSet, basename='Game')
-#router.register(r'question', views.QuestionViewSet)
+router.register(r'question', views.GamerQuestionViewSet, basename='GamerQuestion')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
