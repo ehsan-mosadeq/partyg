@@ -56,7 +56,7 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
 class GamerQuestionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = GamerQuestion
-        fields = ['text']
+        fields = ['text', 'answered_by_all']
 
 
 class AnswerSerializer(serializers.HyperlinkedModelSerializer):
@@ -80,7 +80,7 @@ class AnswerSerializer(serializers.HyperlinkedModelSerializer):
         text = v_data['text']
         ans, created = Answer.objects.get_or_create(
             gamer_question=question, publisher=publisher)
-        # if not created the answer exists
+        # if created == False the answer already exists (new text:ignore or insert?)
         ans.text = text
         ans.save()
         return ans

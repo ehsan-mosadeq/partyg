@@ -112,6 +112,12 @@ class GamerQuestion(models.Model):
     def text(self):
         return self.question.template.format(str(self.subject))
 
+    @property
+    def answered_by_all(self):
+        all_gamers = self.subject.game.gamers.all()
+        all_publishers = [ans.publisher for ans in self.answers_to_me.all()]
+        return set(all_gamers) == set(all_publishers)
+
     def __str__(self):
         return "Question: {}, Finished: {}".format(self.text, self.finished)
 
