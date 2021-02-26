@@ -70,7 +70,7 @@ def GLogin(request):
 
 class GamerQuestionViewSet(
     # mixins.CreateModelMixin,
-    # mixins.RetrieveModelMixin,
+    mixins.RetrieveModelMixin,
     # mixins.UpdateModelMixin,
     # mixins.DestroyModelMixin,
     mixins.ListModelMixin,
@@ -81,6 +81,11 @@ class GamerQuestionViewSet(
         game_token = self.request.query_params.get('GTKN')
         game = Game.objects.get(token=game_token)
         return [game.get_current_question()]
+
+    def retrieve(self, request, pk=None):
+        game = Game.objects.get(token=pk)
+        serializer = self.serializer_class(game.get_current_question())
+        return Response(serializer.data)
 
 
 class AnswerViewSet(
