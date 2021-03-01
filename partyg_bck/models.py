@@ -55,6 +55,8 @@ class Game(models.Model):
 
     def get_current_question(self):
         cq = next((q for q in self.questions() if not q.finished), None)
+        self.current_round = len([quest for quest in self.questions() if quest.finished])
+        self.save()
         if cq is None:
             return self.__get_new_question__()
         return cq
@@ -118,6 +120,12 @@ class GamerQuestion(models.Model):
         all_publishers = [ans.publisher for ans in self.answers_to_me.all()]
         return set(all_gamers) == set(all_publishers)
 
+    @property
+    def voted_by_all(self):
+        all_gamers = self.subject.game.gamers.all()
+        all_voters = [vote.voter for vote in self.votes.all()]
+        return set(all_gamers) == set(all_voters)
+
     def __str__(self):
         return "Question: {}, Finished: {}".format(self.text, self.finished)
 
@@ -148,6 +156,7 @@ class Answer(models.Model):
 
 class Vote(models.Model):
     voter = models.ForeignKey(Gamer, related_name="my_votes", on_delete=models.CASCADE)
+    # this field is added to avoid multiple votes to each question's answer
     question = models.ForeignKey(GamerQuestion, related_name="votes", on_delete=models.CASCADE)
     selection = models.ForeignKey(Answer, on_delete=models.CASCADE)
 
@@ -167,6 +176,3 @@ class Alert(models.Model):
 
     class Meta:
         unique_together = ('publisher', 'receiver', 'gamer_question')
-
-# points for a Gamer = for answer in Gamer.Answers: points += len(answer.selectors))
-# "gtenv/scripts/activate.bat"

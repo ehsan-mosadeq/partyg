@@ -19,8 +19,8 @@ class GamersViewSet(
 
     def get_queryset(self):
         game_token = self.request.query_params.get('GTKN')
-        gmrs = [gmr for gmr in Gamer.objects.all() if str(gmr.token()) == game_token]
-        return gmrs
+        gamers = [gmr for gmr in Gamer.objects.all() if str(gmr.token()) == game_token]
+        return gamers
 
 
 class GamesViewSet(
@@ -92,7 +92,7 @@ class AnswerViewSet(
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
-    #mixins.DestroyModelMixin,
+    # mixins.DestroyModelMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet):
     serializer_class = AnswerSerializer
@@ -106,4 +106,27 @@ class AnswerViewSet(
 
         game = Game.objects.get(token=game_token)
         gamer = Gamer.objects.get(pk=gamer_id)
-        return [ans for ans in game.get_current_question().answers_to_me.all() if not(ans.publisher is gamer)]
+
+        if not(gamer in game.gamers.all()):
+            return []
+
+        return [ans for ans in game.get_current_question().answers_to_me.all() if not(ans.publisher == gamer)]
+
+
+class VoteViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet):
+
+    serializer_class = VoteSerializer
+
+    def get_queryset(self):
+        if not django.conf.settings.DEBUG:    # for debug
+            return []
+
+        ans_id = self.request.query_params.get('ANSID')
+        if ans_id is None:
+            return []
+
+        ans = Answer.objects.get(pk=ans_id)
+        return [vote for vote in ans.votes]
