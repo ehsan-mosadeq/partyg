@@ -13,8 +13,10 @@ router.register(r'votes', views.VoteViewSet, basename='Vote')
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 
+
 def smpl(rq):
     return HttpResponse("Redirect to Front `Create Game and Gamer` Api")
+
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),
@@ -24,9 +26,9 @@ urlpatterns = [
 
     path('glogin', views.GLogin),
     path('api/', include(router.urls)),
-    path('front', smpl)#lambda rq : HttpResponse("Redirect to Front `Create Game and Gamer` Api"))
+    path('front', smpl)  # lambda rq : HttpResponse("Redirect to Front `Create Game and Gamer` Api"))
 ]
 
 
-#path('rest-auth/google', views.GoogleLogin.as_view(), name='gg_login'),
-#path('glogin', TemplateView.as_view(template_name="index.html")),
+# path('rest-auth/google', views.GoogleLogin.as_view(), name='gg_login'),
+# path('glogin', TemplateView.as_view(template_name="index.html")),

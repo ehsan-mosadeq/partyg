@@ -63,7 +63,7 @@ def GLogin(request):
     game_token = clt.active_game().token
     auth_token = Token.objects.get_or_create(user=request.user)
     # TODO a game rounds page should be created
-    response = HttpResponseRedirect("http://127.0.0.1:8040?GTKN={}".format(str(game_token)))
+    response = HttpResponseRedirect("http://127.0.0.1:8040?GTKN={}&OWID={}".format(str(game_token), str(clt.id)))
     response['auth_token'] = auth_token
     return response
 
