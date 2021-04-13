@@ -36,7 +36,7 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Game
-        fields = ['owner_id', 'num_of_rounds', 'active', 'token']
+        fields = ['owner_id', 'num_of_rounds', 'current_round', 'active', 'token']
 
     def gen_8d_num(self):
         return random.randrange(1000000, 100000000 - 1, 1)
@@ -45,7 +45,7 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
         the_owner = Client.objects.get(pk=v_data['owner']['id'])
         # if the owner has a live game don't create a new one
         if the_owner.has_active_game:
-            return the_owner.games.first()
+            return the_owner.games.first() # not the first but the active one
 
         return Game.objects.create(owner=the_owner,
                                    token=self.gen_8d_num(),
