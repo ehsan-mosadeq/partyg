@@ -22,6 +22,37 @@ class GamersViewSet(
         gamers = [gmr for gmr in Gamer.objects.all() if str(gmr.token()) == game_token]
         return gamers
 
+class AnswerersViewSet(
+    #mixins.CreateModelMixin,
+    #mixins.RetrieveModelMixin,
+    #mixins.UpdateModelMixin,
+    # mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet):
+    serializer_class = GamerSerializer
+
+    def get_queryset(self):
+        game_token = self.request.query_params.get('GTKN')
+        game = Game.objects.all().filter(token=game_token)[0]
+        gamers = game.get_current_answerers()
+        return gamers
+
+
+class VotersViewSet(
+    #mixins.CreateModelMixin,
+    #mixins.RetrieveModelMixin,
+    #mixins.UpdateModelMixin,
+    # mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet):
+    serializer_class = GamerSerializer
+
+    def get_queryset(self):
+        game_token = self.request.query_params.get('GTKN')
+        game = Game.objects.all().filter(token=game_token)[0]
+        gamers = game.get_current_voters()
+        return gamers
+
 
 class GamesViewSet(
     mixins.CreateModelMixin,

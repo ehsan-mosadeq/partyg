@@ -61,6 +61,14 @@ class Game(models.Model):
             return self.__get_new_question__()
         return cq
 
+    def get_current_answerers(self):
+        answers = self.get_current_question().answers_to_me.all()
+        return [answer.publisher for answer in answers]
+
+    def get_current_voters(self):
+        votes = self.get_current_question().votes.all()
+        return [vote.voter for vote in votes]
+
     def __str__(self):
         return "owner: {}, is active: {} ".format(self.owner, self.active)
 
