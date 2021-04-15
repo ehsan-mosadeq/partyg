@@ -56,7 +56,7 @@ class GameSerializer(serializers.HyperlinkedModelSerializer):
 class GamerQuestionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = GamerQuestion
-        fields = ['text', 'answered_by_all', 'voted_by_all']
+        fields = ['text', 'subject_id', 'answered_by_all', 'voted_by_all']
 
 
 class AnswerSerializer(serializers.HyperlinkedModelSerializer):
