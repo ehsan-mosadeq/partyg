@@ -155,6 +155,10 @@ class Answer(models.Model):
     def game_token(self):
         return self.publisher.game.token
 
+    @property
+    def points(self):
+        return len(self.selectors.all())
+
     def __str__(self):
         return str(self.text)
 

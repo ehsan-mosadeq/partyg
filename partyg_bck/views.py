@@ -130,18 +130,13 @@ class AnswerViewSet(
 
     def get_queryset(self):
         game_token = self.request.query_params.get('GTKN')
-        gamer_id = self.request.query_params.get('GID')
 
-        if game_token is None or gamer_id is None:
+        if game_token is None:
             return []
 
         game = Game.objects.get(token=game_token)
-        gamer = Gamer.objects.get(pk=gamer_id)
 
-        if not(gamer in game.gamers.all()):
-            return []
-
-        return [ans for ans in game.get_current_question().answers_to_me.all() if not(ans.publisher == gamer)]
+        return [ans for ans in game.get_current_question().answers_to_me.all()]
 
 
 class VoteViewSet(

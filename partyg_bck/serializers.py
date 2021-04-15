@@ -65,7 +65,7 @@ class AnswerSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['id', 'game_token', 'publisher_id', 'text']
+        fields = ['id', 'game_token', 'publisher_id', 'points', 'text']
 
     def validate(self, data):
         publisher = Gamer.objects.get(pk=data['publisher']['id'])
