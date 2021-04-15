@@ -118,8 +118,6 @@ class GamerQuestion(models.Model):
     question = models.ForeignKey(Question, related_name="instances", on_delete=models.CASCADE)
     finished = models.BooleanField(default=False)
 
-
-
     @property
     def text(self):
         return self.question.template.format(str(self.subject))
