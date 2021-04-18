@@ -5,9 +5,10 @@ from django.http import HttpResponse
 from django.views.generic import TemplateView
 
 router = routers.DefaultRouter()
-router.register(r'gamers', views.GamersViewSet, basename='Gamer')
-router.register(r'voters', views.VotersViewSet, basename='Gamer1')
-router.register(r'answerers', views.AnswerersViewSet, basename='Gamer2')
+router.register(r'gamers', views.GamersViewSet, basename='gamers')
+router.register(r'voters', views.VotersViewSet, basename='voters')
+router.register(r'answerers', views.AnswerersViewSet, basename='answerers')
+router.register(r'waiting_for_answer', views.WaitingForAnswerViewSet, basename='waiting_for_answer')
 router.register(r'games', views.GamesViewSet, basename='Game')
 router.register(r'question', views.GamerQuestionViewSet, basename='GamerQuestion')
 router.register(r'answers', views.AnswerViewSet, basename='Answer')
