@@ -119,26 +119,15 @@ class GamerQuestionViewSet(
         return Response(serializer.data)
 
 
-class WaitingForAnswerViewSet(
+class WaitingViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet):
-    serializer_class = GamerSerializer
+    serializer_class = WaitingSerializer
 
     def get_queryset(self):
         game_token = self.request.query_params.get('GTKN')
         game = Game.objects.get(token=game_token)
-        return [gamer_ for gamer_ in game.gamers.all() if not(gamer_ in game.get_current_answerers())]
-
-
-class WaitingForVoteViewSet(
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet):
-    serializer_class = GamerSerializer
-
-    def get_queryset(self):
-        game_token = self.request.query_params.get('GTKN')
-        game = Game.objects.get(token=game_token)
-        return [gamer_ for gamer_ in game.gamers.all() if not(gamer_ in game.get_current_voters())]
+        return game.gamers.all()
 
 
 class AnswerViewSet(

@@ -109,6 +109,16 @@ class Gamer(models.Model):
         sumOfPts = sum([len(answer.selectors.all()) for answer in self.my_answers.all()])
         return sumOfPts
 
+    @property
+    def has_answer(self):
+        has_answer = self in self.game.get_current_answerers()
+        return has_answer
+
+    @property
+    def has_vote(self):
+        has_vote = self in self.game.get_current_voters()
+        return has_vote
+
     class Meta:
         unique_together = ('game', 'name')
 

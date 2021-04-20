@@ -8,6 +8,14 @@ import django
 from .models import *
 
 
+class WaitingSerializer(serializers.HyperlinkedModelSerializer):
+    game_token = serializers.IntegerField(source='game.token', required=True)
+
+    class Meta:
+        model = Gamer
+        fields = ('id', 'name', 'points', 'game_token', 'has_answer', 'has_vote')
+
+
 class GamerSerializer(serializers.HyperlinkedModelSerializer):
     game_token = serializers.IntegerField(source='game.token', required=True)
 
